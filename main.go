@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -26,8 +27,16 @@ func main() {
 		return
 	}
 
-	b.Handle("/hello", func(c tele.Context) error {
-		return c.Send("Hello!")
+	openai_client, err := InitializeOpenAIClient()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	b.Handle(tele.OnText, func(c tele.Context) error {
+		message := c.Message().Text
+		extraction_result := extractMeetingInfo(openai_client, message)
+		return c.Send(extraction_result)
 	})
 
 	b.Start()
