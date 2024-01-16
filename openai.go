@@ -22,7 +22,7 @@ func InitializeOpenAIClient() (*openai.Client, error) {
 }
 
 func extractMeetingInfo(client *openai.Client, message string) (string, error) {
-	prompt_template := `
+	promptTemplate := `
 		Todays time and date is %s Extract the date and time and name of the meeting from the following message.
 		
 		Return a JSON string { date: the date and time in ISO format eg 2024-11-21T09:00:00Z, title: the title of the meeting}.
@@ -49,8 +49,8 @@ func extractMeetingInfo(client *openai.Client, message string) (string, error) {
 		Here is the message:p
 		%s
 	`
-	current_date_time := time.Now().Format("2006-01-02 15:04:05")
-	prompt := fmt.Sprintf(prompt_template, current_date_time, message)
+	currentDateTime := time.Now().Format("2006-01-02 15:04:05")
+	prompt := fmt.Sprintf(promptTemplate, currentDateTime, message)
 
 	completion, err := client.CreateChatCompletion(
 		context.Background(),

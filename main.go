@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	env_err := godotenv.Load()
-	if env_err != nil {
+	err := godotenv.Load()
+	if err != nil {
 		log.Output(1, "Error loading .env file")
 	}
 
@@ -46,7 +46,7 @@ func main() {
 		http.ListenAndServe(":8080", nil)
 	}()
 
-	openai_client, err := InitializeOpenAIClient()
+	openAIClient, err := InitializeOpenAIClient()
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -55,24 +55,24 @@ func main() {
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		message := c.Message().Text
 
-		extracted_meeting_info, err := extractMeetingInfo(openai_client, message)
+		extractedMeetingInfo, err := extractMeetingInfo(openAIClient, message)
 		if err != nil {
 			return handleError("Error in querying OpenAI", err, c)
 		}
 
-		parsed_meeting_info, err := parseMeetingInfo(extracted_meeting_info)
+		parsedMeetingInfo, err := parseMeetingInfo(extractedMeetingInfo)
 		if err != nil {
 			return handleError("Error in parsing JSON", err, c)
 		}
 
-		calendar_link, err := generateCalendarLink(parsed_meeting_info.Date, parsed_meeting_info.Title)
+		calendarLink, err := generateCalendarLink(parsedMeetingInfo.Date, parsedMeetingInfo.Title)
 		if err != nil {
 			return handleError("Error in generating calendar link", err, c)
 		}
 
-		reply_template := "Here is the meeting info extracted from your message:\n- Date: %s\n- Title: %s\n[Link to google calendar](%s)"
+		replyTemplate := "Here is the meeting info extracted from your message:\n- Date: %s\n- Title: %s\n[Link to google calendar](%s)"
 
-		reply := fmt.Sprintf(reply_template, parsed_meeting_info.Date.Format("02.01.2006 15:04:05"), parsed_meeting_info.Title, calendar_link)
+		reply := fmt.Sprintf(replyTemplate, parsedMeetingInfo.Date.Format("02.01.2006 15:04:05"), parsedMeetingInfo.Title, calendarLink)
 
 		return c.Send(reply, &tele.SendOptions{
 			ParseMode: tele.ModeMarkdown,
