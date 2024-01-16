@@ -52,6 +52,11 @@ func main() {
 		return
 	}
 
+	b.Handle("/start", func(c tele.Context) error {
+		reply := "Hello 👋 I'm a bot that can generate a Google Calendar link from a meeting description. Just send me a message with the meeting details and I'll do the rest 🤖"
+		return c.Send(reply)
+	})
+
 	b.Handle(tele.OnText, func(c tele.Context) error {
 		message := c.Message().Text
 
