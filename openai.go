@@ -23,20 +23,39 @@ func InitializeOpenAIClient() (*openai.Client, error) {
 
 func extractMeetingInfo(client *openai.Client, message string) (string, error) {
 	prompt_template := `
-		Todays date is %s Extract the date and time and name of the meeting from the following message. 
+		Todays time and date is %s Extract the date and time and name of the meeting from the following message.
 		
 		Return a JSON string { date: the date and time in ISO format eg 2024-11-21T09:00:00Z, title: the title of the meeting}.
+
+		Examples if todays date is tuesday 16.1.2023:
+		Input: Sovitaan maanantai 22.1. Klo 14-16 ekan miitin ajankohdaksi🤝🤝
+		Output: { date: 2023-01-22T14:00:00Z, title: Eka miitti }
+
+		Input: Sovitaan huomenna 9 aamulla miitti
+		Output: { date: 2023-01-17T09:00:00Z, title: Miitti }
+
+		Input: Sovitaan perjantaina ysistä eteenpäin lounas
+		Output: { date: 2023-01-19T09:00:00Z, title: Lounas }
+
+		Input: Otetaan pe puoleltapäivin tapaaminen
+		Output: { date: 2023-01-20T12:00:00Z, title: Tapaaminen }
+
+		Input: Valitaan ke klo 14-16 TUAS-talolla
+		Output: { date: 2023-01-17T14:00:00Z, title: TUAS-talo }
+
+		Input: Valitaan ens viikon tiistai kympiltä
+		Output: { date: 2023-01-23T10:00:00Z, title: Miitti }
 		
-		Here is the message:
+		Here is the message:p
 		%s
 	`
-
-	prompt := fmt.Sprintf(prompt_template, time.Now().Format("2006-01-02"), message)
+	current_date_time := time.Now().Format("2006-01-02 15:04:05")
+	prompt := fmt.Sprintf(prompt_template, current_date_time, message)
 
 	completion, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model: "ft:gpt-3.5-turbo-0613:personal::8h3P6v9R",
+			Model: openai.GPT4,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleUser,
