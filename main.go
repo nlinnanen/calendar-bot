@@ -70,9 +70,9 @@ func main() {
 			return handleError("Error in generating calendar link", err, c)
 		}
 
-		replyTemplate := "Here is the meeting info extracted from your message:\n- Date: %s\n- Title: %s\n[Link to google calendar](%s)"
+		replyTemplate := "📅 Date: %s\n📣 Title: %s\n[🔗 Link to google calendar 🔗](%s)"
 
-		reply := fmt.Sprintf(replyTemplate, parsedMeetingInfo.Date.Format("02.01.2006 15:04:05"), parsedMeetingInfo.Title, calendarLink)
+		reply := fmt.Sprintf(replyTemplate, parsedMeetingInfo.Date.Format("02.01.2006 15:04"), parsedMeetingInfo.Title, calendarLink)
 
 		return c.Send(reply, &tele.SendOptions{
 			ParseMode: tele.ModeMarkdown,
