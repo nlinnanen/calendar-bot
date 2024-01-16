@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -26,6 +27,24 @@ func main() {
 		log.Fatal(err)
 		return
 	}
+
+	if os.Getenv("PUBLIC_URL") != "" {
+		log.Output(1, "Setting webhook")
+		b.SetWebhook(&tele.Webhook{
+			Listen: os.Getenv("PUBLIC_URL"),
+		})
+	}
+
+	// Initialize server to handle root path for health check
+	go func() {
+		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "OK")
+		})
+		http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "OK")
+		})
+		http.ListenAndServe(":8080", nil)
+	}()
 
 	openai_client, err := InitializeOpenAIClient()
 	if err != nil {
